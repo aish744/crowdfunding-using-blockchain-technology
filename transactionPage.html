@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.3.0/dist/web3.min.js"></script>
+    <link rel="stylesheet" href="./css/transaction.css">
+
+
+
+<script>
+    // Fetch transactions from Ganache
+    if (typeof web3 !== 'undefined') {
+        web3 = new Web3(web3.currentProvider);
+        // alert(web3);
+    } else {
+        // set the provider you want from Web3.providers
+        web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:7545"));
+        // alert(web3);
+    }
+
+    // --------------------------------------------FIRST ATTEMPT-------------------------------------------------//
+//     web3.eth.getPastLogs({
+//         fromBlock: 0,
+//         toBlock: 'latest',
+//         topics: []
+//     }, function(error, logs) {
+//     if (!error) {
+//     // Process the fetched transactions
+//     const transactions = logs.map(log => ({
+//       hash: log.transactionHash,
+//       sender: log.topics[1],
+//       receiver: log.topics[2],
+//       timestamp: log.timestamp
+//     }));
+
+//     console.log(transactions);
+
+//     // Get the transaction list element
+//     const transactionList = document.getElementById('transaction-list');
+
+//     // Generate HTML content for displaying transactions
+//     transactions.forEach(transaction => {
+//       const listItem = document.createElement('li');
+//       listItem.textContent = `Hash: ${transaction.hash}, Sender: ${transaction.sender}, Receiver: ${transaction.receiver}, Timestamp: ${transaction.timestamp}`;
+//       transactionList.appendChild(listItem);
+//     });
+//   } else {
+//     console.error(error);
+//   }
+// });
+
+
+// --------------------------->SECOND ATTEMPT<--------------------------//
+
+
+async function startupTransactions() {
+  const latestBlockNumber = await web3.eth.getBlockNumber();
+  const transactionsContainer = document.getElementById('transactions');
+
+//   SPECIFIC ADDRESS
+const fromAddress = '0xA477931c14B1FDaD19AB69080BA50b5Cd4a6C631';
+
+  for (let blockNumber = 1; blockNumber <= latestBlockNumber; blockNumber++) {
+    const block = await web3.eth.getBlock(blockNumber, true); // Set second parameter to 'true' to retrieve transaction details
+
+    // SPECIIC ADDRESS
+    const transactions = block.transactions;
+    const filteredTransactions = transactions.filter(transaction => transaction.from === fromAddress);
+
+    const blockNumbers = transactions
+    .filter(transaction => transaction.from === fromAddress) // Filter logs by the specified from address
+    .map(transaction => transaction.blockNumber);
+
+    // html
+    const blockDiv = document.createElement('div');
+
+    // SKIP if not specific address
+    if(blockNumber != blockNumbers){
+      continue;
+    }
+    blockDiv.innerHTML = `<h3 class="blocknumber">Block Number: ${block.number}</h3>`;
+
+    // Sort the filtered transactions by index in ascending order
+    filteredTransactions.sort((a, b) => a.transactionIndex - b.transactionIndex);
+
+    // Process or display the sorted transactions as needed
+    for (const tx of filteredTransactions) {
+      const txTimestamp = new Date(block.timestamp * 1000).toLocaleString(); // Convert Unix timestamp to a readable date/time format
+
+        const txDiv = document.createElement('div');
+        txDiv.innerHTML = `
+        
+
+          <div class="container">
+              <div class="row" id="row1" >
+                  <div class="col-10" id="hashvalue" ><h5>Transaction Hash</h5>
+                      <div class="col-10" id="hashvalue2">${tx.hash}</div>
+                  </div>
+                  <div class="col-2" id="timestamp"><h5>Timestamp</h5>
+                      <div class="col-12" id="timestamp2">${txTimestamp}</div>
+                  </div>
+              </div>
+              <div class="row" id="row2">
+                  
+                  <div class="col-5" id="from"><h5>From Address</h5>
+                      <div class="col-5" id="from2">startup 1</div>
+                  </div>
+                  <div class="col-5" id="to"><h5>To Address</h5>
+                      <div class="col-5" id="to2">${tx.to}</div>
+                  </div>
+                  <div class="col-2" id="value"><h5>Value</h5>
+                      <div class="col-12" id="value2"> ${web3.utils.fromWei(tx.value, 'ether')} Ether</div>
+                  </div>
+              </div>
+              <div class="button"><button type="button" class="btn btn-outline-danger">Raise Issue</button></div>
+          </div>
+          
+        `;
+
+        blockDiv.appendChild(txDiv);
+    }
+
+
+    // ALL TRANSACTIONS
+    // if (block && block.transactions.length > 0) {
+    //     const blockDiv = document.createElement('div');
+    //     blockDiv.innerHTML = `<h3>Block Number: ${block.number}</h3>`;
+      
+    //   for (const tx of block.transactions) {
+    //     const txDiv = document.createElement('div');
+    //     txDiv.innerHTML = `
+    //       <p>Transaction Hash: ${tx.hash}</p>
+    //       <p>From: ${tx.from}</p>
+    //       <p>To: ${tx.to}</p>
+    //       <p>Value: ${web3.utils.fromWei(tx.value, 'ether')} Ether</p>
+    //       <hr>
+    //     `;
+
+    //     blockDiv.appendChild(txDiv);
+    //   }
+
+      
+    //     transactionsContainer.appendChild(blockDiv);    
+    // }
+    transactionsContainer.appendChild(blockDiv);   
+  }
+}
+
+
+async function backerTransactions() {
+  const latestBlockNumber = await web3.eth.getBlockNumber();
+  const transactionsContainer = document.getElementById('backer-transactions');
+
+//   SPECIFIC ADDRESS
+const fromAddress = '0x71FB9a14e35e88eEd482316A9FC0712eFCc20815';
+
+  for (let blockNumber = 1; blockNumber <= latestBlockNumber; blockNumber++) {
+    const block = await web3.eth.getBlock(blockNumber, true); // Set second parameter to 'true' to retrieve transaction details
+
+    // SPECIIC ADDRESS
+    const transactions = block.transactions;
+    const filteredTransactions = transactions.filter(transaction => transaction.from === fromAddress);
+
+    const blockNumbers = transactions
+    .filter(transaction => transaction.from === fromAddress) // Filter logs by the specified from address
+    .map(transaction => transaction.blockNumber);
+
+    // html
+    const blockDiv = document.createElement('div');
+
+    // SKIP if not specific address
+    if(blockNumber != blockNumbers){
+      continue;
+    }
+    blockDiv.innerHTML = `<h3 class="blocknumber">Block Number: ${block.number}</h3>`;
+
+    // Sort the filtered transactions by index in ascending order
+    filteredTransactions.sort((a, b) => a.transactionIndex - b.transactionIndex);
+
+    // Process or display the sorted transactions as needed
+    for (const tx of filteredTransactions) {
+      const txTimestamp = new Date(block.timestamp * 1000).toLocaleString(); // Convert Unix timestamp to a readable date/time format
+
+        const txDiv = document.createElement('div');
+        txDiv.innerHTML = `
+          
+        <div class="container">
+              <div class="row" id="row1" >
+                  <div class="col-10" id="hashvalue" ><h5>Transaction Hash</h5>
+                      <div class="col-10" id="hashvalue2">${tx.hash}</div>
+                  </div>
+                  <div class="col-2" id="timestamp"><h5>Timestamp</h5>
+                      <div class="col-12" id="timestamp2">${txTimestamp}</div>
+                  </div>
+              </div>
+              <div class="row" id="row2">
+                  
+                  <div class="col-5" id="from"><h5>From Address</h5>
+                      <div class="col-5" id="from2">Backer 1</div>
+                  </div>
+                  <div class="col-5" id="to"><h5>To Address</h5>
+                      <div class="col-5" id="to2">${tx.to}</div>
+                  </div>
+                  <div class="col-2" id="value"><h5>Value</h5>
+                      <div class="col-12" id="value2"> ${web3.utils.fromWei(tx.value, 'ether')} Ether</div>
+                  </div>
+              </div>
+              <div class="button"><button type="button" class="btn btn-outline-danger">Raise Issue</button></div>
+          </div>
+          
+          
+        `;
+
+        blockDiv.appendChild(txDiv);
+    }
+
+
+    // ALL TRANSACTIONS
+    // if (block && block.transactions.length > 0) {
+    //     const blockDiv = document.createElement('div');
+    //     blockDiv.innerHTML = `<h3>Block Number: ${block.number}</h3>`;
+      
+    //   for (const tx of block.transactions) {
+    //     const txDiv = document.createElement('div');
+    //     txDiv.innerHTML = `
+    //       <p>Transaction Hash: ${tx.hash}</p>
+    //       <p>From: ${tx.from}</p>
+    //       <p>To: ${tx.to}</p>
+    //       <p>Value: ${web3.utils.fromWei(tx.value, 'ether')} Ether</p>
+    //       <hr>
+    //     `;
+
+    //     blockDiv.appendChild(txDiv);
+    //   }
+
+      
+    //     transactionsContainer.appendChild(blockDiv);    
+    // }
+    transactionsContainer.appendChild(blockDiv);   
+  }
+}
+
+</script>
+</head>
+<body onload="startupTransactions(); backerTransactions()">
+
+    <header>
+        <div class="header-area ">
+          <div class="header-top_area">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-xl-6 col-md-12 col-lg-8">
+                        <div class="short_contact_list">
+                            <ul>
+                                <li><a href="#"> <i class="fa fa-phone"></i> +91 9922425315</a></li>
+                                <li id="account"><a href="#"> <i class="fa fa-envelope"></i>ForFunds@gmail.com</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-xl-6 col-md-6 col-lg-4">
+                        <div class="social_media_links d-none d-lg-block">
+                            <a href="#">
+                                <i class="fa fa-facebook"></i>
+                            </a>
+                            <a href="#">
+                                <i class="fa fa-pinterest-p"></i>
+                            </a>
+                            <a href="#">
+                                <i class="fa fa-linkedin"></i>
+                            </a>
+                            <a href="#">
+                                <i class="fa fa-twitter"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+            <div id="sticky-header" class="main-header-area">
+                <div class="container-fluid">
+                    <div class="row align-items-center">
+                        <div class="col-xl-3 col-lg-3">
+                            <div class="logo">
+                                <a href="index.html">
+                                    <img src="img/logo.png" alt="">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-xl-9 col-lg-9">
+                            <div class="main-menu">
+                                <nav>
+                                    <ul id="navigation">
+                                        <li><a href="index.html">home</a></li>
+                                        <li><a href="milestones.html">About</a></li>
+                                        <li><a href="set milestones.html">Contact</a></li>
+                                        <!-- Login Button -->
+                                        <li class = "login"><a href="#">Login <i class="ti-angle-down"></i></a>
+                                            <ul class="submenu">
+                                                <li><a href="ProjectLogin.html">Project Owner</a></li>
+                                                <li><a href="BackerLogin.html">Backer</a></li>
+                                                <li onclick="isAdmin()"><a>Admin</a></li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </header>
+    
+    <!-- <div class="container">
+        <div class="row" id="row1" >
+            <div class="col-12" id="hashvalue" ><h5>Transaction Hash</h5>
+                <div class="col-5" id="hashvalue2">Second column content</div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-5" id="from"><h5>From Address</h5>
+                <div class="col-12" id="from2">Second column content</div>
+            </div>
+            <div class="col-5" id="to"><h5>To Address</h5>
+                <div class="col-12" id="to2">Second column content</div>
+            </div>
+            <div class="col-2" id="value"><h5>Value</h5>
+                <div class="col-12" id="value2">329584</div>
+            </div>
+          </div>
+    </div> -->
+
+    <h1 class="startup">Startup Transactions</h1>
+    <div id="transactions"></div>
+
+    <h1 class="startup">Backer Transactions</h1>
+    <div id="backer-transactions"></div>
+</body>
+</html>
